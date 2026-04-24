@@ -1,9 +1,14 @@
 import { useState } from "react";
-
+import { useEffect } from "react";
 
 function App() {
   //crear estado de categorias 
-  const [categorias, setCategorias] = useState([]);
+  //localStorage.getItem trae lo guardado. JSON.parse, convierte texto a objeto. ? Si no hay nada guardado, devuelve un array vacio
+  const [categorias, setCategorias] = useState(() => {
+    const datosGuardados = localStorage.getItem("categorias");
+    return datosGuardados ? JSON.parse(datosGuardados) : [];
+  });
+
   const [nombreCategoria, setNombreCategoria] = useState("");
   const [editandoId, setEditandoId] = useState(null); //editandoID guara que cat estoy editando
   const [nuevoNombre, setNuevoNombre] = useState(""); //guarda el texto nuevo
@@ -24,6 +29,10 @@ function App() {
     porcentaje: "",
     stock: ""
   });
+  //guardamos las categorias en localStorage cada vez que cambian
+  useEffect(() => {
+    localStorage.setItem("categorias", JSON.stringify(categorias));
+  }, [categorias]);
 
   //creamos la funcion para agregar categoria 
   const agregarCategoria = () => {
@@ -144,6 +153,12 @@ function App() {
     setEditandoProducto(null);
   };
 
+  //funcion para obtener el color segun el stock del producto
+  const obtenerColorStock = (stock) => {
+    if (stock <= 2) return "red";
+    if (stock <= 5) return "orange";
+    return "green";
+  };
 
   return (
   <div>
@@ -302,8 +317,8 @@ function App() {
 
                 ) : (
                   //si no aprieta editar producto se muestra asi
-                  <div>
-                    {prod.nombre} = Costo:${prod.costo} - Precio: ${prod.precio} - Stock: {prod.stock}
+                  <div style={{ color: obtenerColorStock(prod.stock) }}>
+                     {prod.nombre} - ${prod.precio} - Stock: {prod.stock}
 
                     <button onClick={() => eliminarProducto(cat.id, prod.id)}>
                       Eliminar
