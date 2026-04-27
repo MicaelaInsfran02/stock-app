@@ -1,15 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Home() {
+function Home({ categorias, setCategorias}) {
   const navigate = useNavigate();
-
-  //crear estado de categorias 
-  //localStorage.getItem trae lo guardado. JSON.parse, convierte texto a objeto. ? Si no hay nada guardado, devuelve un array vacio
-  const [categorias, setCategorias] = useState(() => {
-    const datosGuardados = localStorage.getItem("categorias");
-    return datosGuardados ? JSON.parse(datosGuardados) : [];
-  });
 
   const [nombreCategoria, setNombreCategoria] = useState("");
   const [editandoId, setEditandoId] = useState(null); //editandoID guara que cat estoy editando
@@ -32,10 +25,7 @@ function Home() {
     stock: ""
   });
 
-    //guardamos las categorias en localStorage cada vez que cambian
-  useEffect(() => {
-    localStorage.setItem("categorias", JSON.stringify(categorias));
-  }, [categorias]);
+    
    
     //-----------------------------FUNCIONES-----------------------------//  
 
