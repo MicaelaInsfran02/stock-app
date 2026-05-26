@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Producto from "./Producto";
+import Categoria from "./Categoria";
+import {
+  Button,
+  TextField,
+  Typography
+} from "@mui/material";
 
 function Home({ categorias, setCategorias}) {
   const navigate = useNavigate();
@@ -157,204 +164,121 @@ function Home({ categorias, setCategorias}) {
 
     //------------------------------RENDERIZADO-----------------------------//
   return (
-    <div>
+    <div
+      style={{
+        backgroundColor: "#121212",
+        minHeight: "100vh",
+        padding: "30px",
+        color: "white"
+      }}
+    >
       <button onClick={() => navigate("/ventas")}>
         VENDER
       </button>
 
       
-      <h1>Stocky </h1>
+      <Typography
+        variant="h3"
+        sx={{
+          fontWeight: "bold",
+          marginBottom: "30px"
+        }}
+      >
+        MIStock
+      </Typography>
 
-      <input
-        placeholder="Nombre de la categoría"
+      <TextField
+        label="Nombre de la categoría"
+        variant="outlined"
         value={nombreCategoria}
         onChange={(e) => setNombreCategoria(e.target.value)}
+        size="medium"
+        sx={{
+          width: "300px",
+          marginRight: "15px",
+
+          "& .MuiInputLabel-root": {
+            color: "#bdbdbd",
+            fontSize: "16px"
+          },
+
+          "& .MuiOutlinedInput-root": {
+            backgroundColor: "#1e1e1e",
+            color: "white",
+            borderRadius: "12px",
+
+            "& fieldset": {
+              borderColor: "#444"
+            },
+
+            "&:hover fieldset": {
+              borderColor: "#666"
+            },
+
+            "&.Mui-focused fieldset": {
+              borderColor: "#90caf9"
+            }
+          }
+        }}
       />
 
-      <button onClick={agregarCategoria}>
+      <Button
+        variant="contained"
+        size="large"
+        onClick={agregarCategoria}
+        sx={{
+          height: "56px",
+          borderRadius: "12px",
+          textTransform: "none",
+          fontWeight: "bold"
+        }}
+      >
         Agregar Categoría
-      </button>
+      </Button>
 
       <ul>
         {categorias.map((cat) => (
-          <li key={cat.id}>
+          <Categoria
+            key={cat.id}
+            cat={cat}
 
-            {/* Editar categoria */}
-            {editandoId === cat.id ? (
-              <>
-                <input
-                  value={nuevoNombre}
-                  onChange={(e) => setNuevoNombre(e.target.value)}
-                />
-                <button onClick={() => guardarEdicion(cat.id)}>
-                  Guardar
-                </button>
-                <button onClick={() => setEditandoId(null)}>
-                  Cancelar
-                </button>
-              </>
-            ) : ( //si no esta editando la categoria se muestra asi
-              <>
-                <h3>{cat.nombre}</h3>
+            editandoId={editandoId}
+            nuevoNombre={nuevoNombre}
+            setNuevoNombre={setNuevoNombre}
+            guardarEdicion={guardarEdicion}
+            setEditandoId={setEditandoId}
 
-                <button onClick={() => {
-                  setEditandoId(cat.id);
-                  setNuevoNombre(cat.nombre);
-                }}>
-                  Editar nombre
-                </button>
+            eliminarCategoria={eliminarCategoria}
 
-                <button onClick={() => eliminarCategoria(cat.id)}>
-                  Eliminar categoria
-                </button>
+            setCategoriaActiva={setCategoriaActiva}
+            categoriaActiva={categoriaActiva}
 
-                <button onClick={() => setCategoriaActiva(cat.id)}>
-                  Agregar producto
-                </button>
-              </>
-            )}
+            productoNombre={productoNombre}
+            setProductoNombre={setProductoNombre}
 
-            {/* Formulario para agregar producto */}
-            {categoriaActiva === cat.id && (
-              <div>
-                <input
-                  placeholder="Nombre producto"
-                  value={productoNombre}
-                  onChange={(e) => setProductoNombre(e.target.value)}
-                />
+            productoCosto={productoCosto}
+            setProductoCosto={setProductoCosto}
 
-                <input
-                  placeholder="Costo"
-                  type="number"
-                  value={productoCosto}
-                  onChange={(e) => setProductoCosto(e.target.value)}
-                />
+            productoPorcentaje={productoPorcentaje}
+            setProductoPorcentaje={setProductoPorcentaje}
 
-                <input
-                  placeholder="% ganancia"
-                  type="number"
-                  value={productoPorcentaje}
-                  onChange={(e) => setProductoPorcentaje(e.target.value)}
-                />
+            productoStock={productoStock}
+            setProductoStock={setProductoStock}
 
-                <input
-                  placeholder="Stock"
-                  type="number"
-                  value={productoStock}
-                  onChange={(e) => setProductoStock(e.target.value)}
-                />
+            agregarProducto={agregarProducto}
 
-                <button onClick={() => agregarProducto(cat.id)}>
-                  Guardar producto
-                </button>
+            editandoProducto={editandoProducto}
+            productoEditado={productoEditado}
+            setProductoEditado={setProductoEditado}
+            guardarEdicionProducto={guardarEdicionProducto}
+            setEditandoProducto={setEditandoProducto}
 
-                <button onClick={() => setCategoriaActiva(null)}>
-                  Cancelar
-                </button>
-              </div>
-            )}
-
-            {/* Lista de productos*/}
-            <ul>
-              {cat.productos.map((prod) => (
-                <li key={prod.id}>
-
-                  {editandoProducto &&
-                    editandoProducto.productoId === prod.id ? (
-
-                    // MODO EDICIÓN
-                    <div>
-                      <input
-                        value={productoEditado.nombre}
-                        onChange={(e) =>
-                          setProductoEditado({
-                            ...productoEditado,
-                            nombre: e.target.value
-                          })
-                        }
-                      />
-
-                      <input
-                        type="number"
-                        value={productoEditado.costo}
-                        onChange={(e) =>
-                          setProductoEditado({
-                            ...productoEditado,
-                            costo: e.target.value
-                          })
-                        }
-                      />
-
-                      <input
-                        type="number"
-                        value={productoEditado.porcentaje}
-                        onChange={(e) =>
-                          setProductoEditado({
-                            ...productoEditado,
-                            porcentaje: e.target.value
-                          })
-                        }
-                      />
-
-                      <input
-                        type="number"
-                        value={productoEditado.stock}
-                        onChange={(e) =>
-                          setProductoEditado({
-                            ...productoEditado,
-                            stock: e.target.value
-                          })
-                        }
-                      />
-
-                      <button onClick={guardarEdicionProducto}>
-                        Guardar
-                      </button>
-
-                      <button onClick={() => setEditandoProducto(null)}>
-                        Cancelar
-                      </button>
-                    </div>
-
-                  ) : (
-                    //si no aprieta editar producto se muestra asi
-                    <div style={{ color: obtenerColorStock(prod.stock) }}>
-                      {prod.nombre} - ${prod.precio} - Stock: {prod.stock}
-
-                      <button onClick={() => eliminarProducto(cat.id, prod.id)}>
-                        Eliminar
-                      </button>
-
-                      <button onClick={() => {
-                        setEditandoProducto({
-                          categoriaId: cat.id,
-                          productoId: prod.id
-                        });
-
-                        setProductoEditado({
-                          nombre: prod.nombre,
-                          costo: prod.costo,
-                          porcentaje: prod.porcentaje,
-                          stock: prod.stock
-                        });
-                      }}>
-                        Editar
-                      </button>
-                    </div>
-
-                  )}
-
-                </li>
-              ))}
-            </ul>
-
-          </li>
+            eliminarProducto={eliminarProducto}
+            obtenerColorStock={obtenerColorStock}
+          />
         ))}
       </ul>
     </div>
   );
-
-
 }
-
 export default Home;
