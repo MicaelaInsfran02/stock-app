@@ -11,23 +11,46 @@ function App() {
     return datosGuardados ? JSON.parse(datosGuardados) : [];
   });
  
-  //guardamos las categorias en localStorage cada vez que cambian
+  //persistencia de categorias en localStorage, cada vez que se actualiza categorias, se guarda en localStorage
   useEffect(() => {
     localStorage.setItem("categorias", JSON.stringify(categorias));
   }, [categorias]);
 
+  //estado para ventas, se guarda en localStorage cada vez que se actualiza
+  const [ventas, setVentas] = useState(() => {
+    const datos = localStorage.getItem("ventas");
+    return datos ? JSON.parse(datos) : [];
+  });
+  //persistencia de ventas en localStorage
+  useEffect(() => {
+    localStorage.setItem("ventas", JSON.stringify(ventas));
+  }, [ventas]);
 
   return (
-   <Routes>
+    <Routes>
+    
     <Route
       path="/"
-      element={<Home categorias={categorias} setCategorias={setCategorias} />}
+      element={
+        <Home
+          categorias={categorias}
+          setCategorias={setCategorias}
+        />
+      }
     />
 
     <Route
       path="/ventas"
-      element={<Ventas categorias={categorias} setCategorias={setCategorias} />}
+      element={
+        <Ventas
+          categorias={categorias}
+          setCategorias={setCategorias}
+          ventas={ventas}
+          setVentas={setVentas}
+        />
+      }
     />
+
   </Routes>
   );
 

@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-function Ventas({categorias, setCategorias}) {
+function Ventas({categorias, setCategorias, ventas, setVentas}) {
 
-  const navigate = useNavigate({categorias, setCategorias});
+  const navigate = useNavigate();
   //carrito de products seleccionados
   const [carrito, setCarrito]= useState ([]);
 
@@ -49,34 +49,45 @@ function Ventas({categorias, setCategorias}) {
   };
 
   //funcion para vender
-  const vender = () => {
+ const vender = () => {
     if (carrito.length === 0) {
       alert("No hay productos en el carrito");
       return;
     }
 
-    const nuevasCategorias = categorias.map(cat => {
-      const nuevosProductos = (cat.productos || []).map(prod => {
+    // actualizar stock (descontar unidades vendidas)
+    const nuevasCategorias = categorias.map(cat => ({
+      ...cat,
+      productos: (cat.productos || []).map(prod => {
         const vendido = carrito.find(item => item.id === prod.id);
 
         if (vendido) {
           return {
             ...prod,
-            stock: Math.max(0, prod.stock - vendido.cantidad) //descuenta del stock
+            stock: Math.max(0, prod.stock - vendido.cantidad)
           };
         }
 
         return prod;
-      });
-
-      return {
-        ...cat,
-        productos: nuevosProductos
-      };
-    });
+      })
+    }));
 
     setCategorias(nuevasCategorias);
 
+    // guardar venta
+    const nuevaVenta = {
+      id: Date.now(),
+      fecha: new Date().toLocaleString(),
+      productos: carrito,
+      total: carrito.reduce(
+        (acc, item) => acc + item.precio * item.cantidad,
+        0
+      )
+    };
+
+    setVentas([...ventas, nuevaVenta]);
+
+    // limpiar carrito
     setCarrito([]);
 
     alert("Venta realizada correctamente");
