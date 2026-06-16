@@ -1,3 +1,10 @@
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button
+} from "@mui/material";
+
 function Producto({
   prod,
   cat,
@@ -8,33 +15,76 @@ function Producto({
 }) {
 
   return (
-    <div style={{ color: obtenerColorStock(prod.stock) }}>
+    <Card
+      sx={{
+        mt: 2,
+        backgroundColor: "#252525",
+        color: "white",
+        borderRadius: "12px",
+        boxShadow: "0 4px 10px rgba(44, 44, 44, 0.3)"
+      }}
+    >
+      <CardContent>
 
-      {prod.nombre} - ${prod.precio} - Stock: {prod.stock}
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: "bold" }}
+        >
+          📦 {prod.nombre}
+        </Typography>
 
-      <button onClick={() => eliminarProducto(cat.id, prod.id)}>
-        Eliminar
-      </button>
+        <Typography>
+          💲 Precio: ${prod.precio}
+        </Typography>
 
-      <button onClick={() => {
+        <Typography
+          sx={{
+            color: obtenerColorStock(prod.stock)
+          }}
+        >
+          📊 Stock: {prod.stock}
+        </Typography>
 
-        setEditandoProducto({
-          categoriaId: cat.id,
-          productoId: prod.id
-        });
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            gap: "10px"
+          }}
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() =>
+              eliminarProducto(cat.id, prod.id)
+            }
+          >
+            Eliminar
+          </Button>
 
-        setProductoEditado({
-          nombre: prod.nombre,
-          costo: prod.costo,
-          porcentaje: prod.porcentaje,
-          stock: prod.stock
-        });
+          <Button
+            size="small"
+            variant="contained"
+            onClick={() => {
+              setEditandoProducto({
+                categoriaId: cat.id,
+                productoId: prod.id
+              });
 
-      }}>
-        Editar
-      </button>
+              setProductoEditado({
+                nombre: prod.nombre,
+                costo: prod.costo,
+                porcentaje: prod.porcentaje,
+                stock: prod.stock
+              });
+            }}
+          >
+            Editar
+          </Button>
+        </div>
 
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 

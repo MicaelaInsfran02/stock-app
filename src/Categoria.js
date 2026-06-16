@@ -31,16 +31,27 @@ function Categoria({
   guardarEdicionProducto,
   setEditandoProducto,
   eliminarProducto,
-  obtenerColorStock
+  obtenerColorStock,
+  categoriaAbierta,
+  setCategoriaAbierta,
+  busquedaProducto
 }) {
 
+const productosFiltrados = cat.productos.filter((prod) =>
+  prod.nombre.toLowerCase().includes(
+    busquedaProducto.toLowerCase()
+  )
+);
+
+console.log(busquedaProducto);
   return (
     <Card
         sx={{
-            marginTop: "20px",
+            mt: 3,
             backgroundColor: "#1e1e1e",
             color: "white",
-            borderRadius: "15px"
+            borderRadius: "16px",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.3)"
         }}
     >
       <CardContent>
@@ -63,22 +74,58 @@ function Categoria({
         </>
       ) : (
         <>
-          <h3>{cat.nombre}</h3>
+          <Typography
+            variant="h5"
+            onClick={() =>
+              setCategoriaAbierta(
+                categoriaAbierta === cat.id ? null : cat.id
+              )
+            }
+            sx={{
+              cursor: "pointer",
+              fontWeight: "bold",
+              mb: 2,
+              color: "#b3daf0",
+              userSelect: "none"
+            }}
+          >
+            {categoriaAbierta === cat.id ? "▼" : "▶"} {cat.nombre}
+          </Typography>
+          {categoriaAbierta === cat.id && (
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                marginBottom: "15px",
+                flexWrap: "wrap"
+              }}
+            >
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setEditandoId(cat.id);
+                  setNuevoNombre(cat.nombre);
+                }}
+              >
+                Editar nombre
+              </Button>
 
-          <button onClick={() => {
-            setEditandoId(cat.id);
-            setNuevoNombre(cat.nombre);
-          }}>
-            Editar nombre
-          </button>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => eliminarCategoria(cat.id)}
+              >
+                Eliminar categoría
+              </Button>
 
-          <button onClick={() => eliminarCategoria(cat.id)}>
-            Eliminar categoria
-          </button>
-
-          <button onClick={() => setCategoriaActiva(cat.id)}>
-            Agregar producto
-          </button>
+              <Button
+                variant="contained"
+                onClick={() => setCategoriaActiva(cat.id)}
+              >
+                Agregar producto
+              </Button>
+            </div>
+          )}
         </>
       )}
 
@@ -125,85 +172,89 @@ function Categoria({
       )}
 
       {/* PRODUCTOS */}
-      <ul>
-        {cat.productos.map((prod) => (
-          <li key={prod.id}>
+    {categoriaAbierta === cat.id && (
+      <>
+        <ul
+          style={{ marginTop: "20px" }} >
+          {productosFiltrados.map((prod) => (
+            <li key={prod.id}>
 
-            {editandoProducto &&
-            editandoProducto.productoId === prod.id ? (
+              {editandoProducto &&
+              editandoProducto.productoId === prod.id ? (
 
-              <div>
+                <div>
 
-                <input
-                  value={productoEditado.nombre}
-                  onChange={(e) =>
-                    setProductoEditado({
-                      ...productoEditado,
-                      nombre: e.target.value
-                    })
-                  }
+                  <input
+                    value={productoEditado.nombre}
+                    onChange={(e) =>
+                      setProductoEditado({
+                        ...productoEditado,
+                        nombre: e.target.value
+                      })
+                    }
+                  />
+
+                  <input
+                    type="number"
+                    value={productoEditado.costo}
+                    onChange={(e) =>
+                      setProductoEditado({
+                        ...productoEditado,
+                        costo: e.target.value
+                      })
+                    }
+                  />
+
+                  <input
+                    type="number"
+                    value={productoEditado.porcentaje}
+                    onChange={(e) =>
+                      setProductoEditado({
+                        ...productoEditado,
+                        porcentaje: e.target.value
+                      })
+                    }
+                  />
+
+                  <input
+                    type="number"
+                    value={productoEditado.stock}
+                    onChange={(e) =>
+                      setProductoEditado({
+                        ...productoEditado,
+                        stock: e.target.value
+                      })
+                    }
+                  />
+
+                  <button onClick={guardarEdicionProducto}>
+                    Guardar
+                  </button>
+
+                  <button onClick={() => setEditandoProducto(null)}>
+                    Cancelar
+                  </button>
+
+                </div>
+
+              ) : (
+
+                <Producto
+                  prod={prod}
+                  cat={cat}
+                  eliminarProducto={eliminarProducto}
+                  obtenerColorStock={obtenerColorStock}
+                  setEditandoProducto={setEditandoProducto}
+                  setProductoEditado={setProductoEditado}
                 />
 
-                <input
-                  type="number"
-                  value={productoEditado.costo}
-                  onChange={(e) =>
-                    setProductoEditado({
-                      ...productoEditado,
-                      costo: e.target.value
-                    })
-                  }
-                />
+              )}
 
-                <input
-                  type="number"
-                  value={productoEditado.porcentaje}
-                  onChange={(e) =>
-                    setProductoEditado({
-                      ...productoEditado,
-                      porcentaje: e.target.value
-                    })
-                  }
-                />
-
-                <input
-                  type="number"
-                  value={productoEditado.stock}
-                  onChange={(e) =>
-                    setProductoEditado({
-                      ...productoEditado,
-                      stock: e.target.value
-                    })
-                  }
-                />
-
-                <button onClick={guardarEdicionProducto}>
-                  Guardar
-                </button>
-
-                <button onClick={() => setEditandoProducto(null)}>
-                  Cancelar
-                </button>
-
-              </div>
-
-            ) : (
-
-              <Producto
-                prod={prod}
-                cat={cat}
-                eliminarProducto={eliminarProducto}
-                obtenerColorStock={obtenerColorStock}
-                setEditandoProducto={setEditandoProducto}
-                setProductoEditado={setProductoEditado}
-              />
-
-            )}
-
-          </li>
-        ))}
-      </ul>
-
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
     </CardContent>
   </Card>
   );

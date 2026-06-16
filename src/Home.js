@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Producto from "./Producto";
 import Categoria from "./Categoria";
+import DashboardCard from "./DashboardCard";
 import {
   Button,
   TextField,
@@ -20,10 +21,17 @@ function Home({ categorias, setCategorias}) {
   const [productoCosto, setProductoCosto] = useState("");
   const [productoPorcentaje, setProductoPorcentaje] = useState("");
   const [productoStock, setProductoStock] = useState("");
+  //estado para saber que categoria esta abierta para mostrar sus productos
+  const [categoriaAbierta, setCategoriaAbierta] = useState(null);
   //estado para saber a que categoria se le esta agregando el producto
   const [categoriaActiva, setCategoriaActiva] = useState(null);
   //estado para editar producto (editandoProducto guarda {categoriaId,productoId})
   const [editandoProducto, setEditandoProducto] = useState(null);
+  //estado para la busqueda de productos
+  const [busquedaProducto, setBusquedaProducto] = useState("");
+  //estado para mostrar dashboard de ventas
+  const [mostrarDashboard, setMostrarDashboard] = useState(false);
+  const [mostrarNuevaCategoria, setMostrarNuevaCategoria] = useState(false);
   //estado para guardar los datos editados del producto
   const [productoEditado, setProductoEditado] = useState({
     nombre: "",
@@ -162,83 +170,276 @@ function Home({ categorias, setCategorias}) {
     return "green";
   };
 
+// cantidad total de productos
+const totalProductos = categorias.reduce(
+  (acc, cat) => acc + cat.productos.length,
+  0
+);
+
+// stock total
+const stockTotal = categorias.reduce(
+  (acc, cat) =>
+    acc +
+    cat.productos.reduce(
+      (suma, prod) => suma + Number(prod.stock),
+      0
+    ),
+  0
+);
+
+// productos con stock bajo
+const productosStockBajo = categorias.flatMap(cat =>
+  cat.productos.filter(prod => Number(prod.stock) <= 5)
+);
+
+// todos los productos con su categoria (para el buscador principal)
+const todosLosProductos = categorias.flatMap(cat =>
+  cat.productos.map(prod => ({
+    ...prod,
+    categoria: cat.nombre
+  }))
+);
+const resultadosBusqueda = todosLosProductos.filter(prod =>
+  prod.nombre.toLowerCase().includes(
+    busquedaProducto.toLowerCase()
+  )
+);
+
     //------------------------------RENDERIZADO-----------------------------//
-  return (
+    //estilo para los botones
+    const estiloBoton = {
+      borderRadius: "8px",
+      textTransform: "none",
+      fontWeight: "bold"
+    };
+
+    return (
     <div
       style={{
-        backgroundColor: "#121212",
+        backgroundColor: "#96bff5",
         minHeight: "100vh",
         padding: "30px",
-        color: "white"
+        color: "black"
       }}
     >
-      <button onClick={() => navigate("/ventas")}>
-        VENDER
-      </button>
-
       
       <Typography
-        variant="h3"
         sx={{
+          textAlign: "center",
+          fontSize: "3rem",
           fontWeight: "bold",
+          letterSpacing: "4px",
+          color: "#f5f5f5",
           marginBottom: "30px"
         }}
       >
         MIStock
       </Typography>
-
-      <TextField
-        label="Nombre de la categoría"
-        variant="outlined"
-        value={nombreCategoria}
-        onChange={(e) => setNombreCategoria(e.target.value)}
-        size="medium"
-        sx={{
-          width: "300px",
-          marginRight: "15px",
-
-          "& .MuiInputLabel-root": {
-            color: "#bdbdbd",
-            fontSize: "16px"
-          },
-
-          "& .MuiOutlinedInput-root": {
-            backgroundColor: "#1e1e1e",
-            color: "white",
-            borderRadius: "12px",
-
-            "& fieldset": {
-              borderColor: "#444"
-            },
-
-            "&:hover fieldset": {
-              borderColor: "#666"
-            },
-
-            "&.Mui-focused fieldset": {
-              borderColor: "#90caf9"
-            }
-          }
-        }}
-      />
-
-      <Button
-        variant="contained"
-        size="large"
-        onClick={agregarCategoria}
-        sx={{
-          height: "56px",
-          borderRadius: "12px",
-          textTransform: "none",
-          fontWeight: "bold"
+      {/* BOTONES */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "30px",
+          marginBottom: "20px"
         }}
       >
-        Agregar Categoría
-      </Button>
+        <TextField
+            label="Buscar producto..."
+            variant="outlined"
+            value={busquedaProducto}
+            onChange={(e) => setBusquedaProducto(e.target.value)}
+            sx={{
+              backgroundColor: "white",
+              borderRadius: "10px",
+              flex: 1
+            }}
+          />
+        <Button 
+          variant="contained"
+          onClick={() => navigate("/ventas")}
+          sx={estiloBoton}
+        >
+          💰 VENDER
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => {
+            setMostrarDashboard(!mostrarDashboard);
+            setMostrarNuevaCategoria(false);
+          }}
+          sx={estiloBoton}
+        >
+          📊 RESUMEN
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => {
+            setMostrarNuevaCategoria(!mostrarNuevaCategoria);
+            setMostrarDashboard(false);
+          }}
+          sx={estiloBoton}
+        >
+          ➕ AGREGAR CATEGORÍA
+        </Button>
 
-      <ul>
-        {categorias.map((cat) => (
+      </div>
+
+      {mostrarDashboard && (
+        <>
+          {/* DASHBOARD */}
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              marginBottom: "15px",
+              flexWrap: "wrap"
+            }}
+          >
+            <DashboardCard
+              titulo="CATEGORÍAS"
+              valor={categorias.length}
+            />
+
+            <DashboardCard
+              titulo="PRODUCTOS"
+              valor={totalProductos}
+            />
+
+            <DashboardCard
+              titulo="STOCK"
+              valor={stockTotal}
+            />
+          </div>
+
+          {/* STOCK BAJO */}
+          {productosStockBajo.length > 0 && (
+            <div
+              style={{
+                fontFamily: "Arial, sans-serif",
+                backgroundColor: "#f37575",
+                border: "1px solid #ff5252",
+                padding: "10px",
+                borderRadius: "10px",
+                marginBottom: "20px",
+                width: "340px"
+              }}
+            >
+              <strong>⚠ STOCK BAJO</strong>
+
+              <ul
+                style={{
+                  marginTop: "8px",
+                  marginBottom: 0
+                }}
+              >
+                {productosStockBajo.map((prod) => (
+                  <li key={prod.id}>
+                    {prod.nombre} - Stock: {prod.stock}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-start",
+          marginBottom: "25px"
+        }}
+      >
+      </div>
+
+      {mostrarNuevaCategoria && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "10px",
+            marginBottom: "30px"
+            }}
+        >
+          <TextField
+            label="Nombre de la categoría"
+            value={nombreCategoria}
+            onChange={(e) =>
+              setNombreCategoria(e.target.value)
+            }
+            size="small"
+            sx={{
+              backgroundColor: "white",
+              borderRadius: "10px",
+              marginRight: "10px"
+            }}
+          />
+
+          <Button
+            variant="contained"
+            onClick={() => {
+              agregarCategoria();
+              setMostrarNuevaCategoria(false);
+            }}
+          >
+            Guardar
+          </Button>
+        </div>
+      )}
+    {busquedaProducto.trim() !== "" ? (
+      <div>
+        <h3>Resultados</h3>
+
+        {resultadosBusqueda.length === 0 ? (
+          <p
+            style={{
+              color: "#bdbdbd",
+              textAlign: "center",
+              marginTop: "20px"
+            }}
+          >
+            No se encontraron productos
+          </p>
+        ) : (
+          resultadosBusqueda.map(prod => (
+            <div
+              key={prod.id}
+              style={{
+                backgroundColor: "#1e1e1e",
+                padding: "12px",
+                borderRadius: "10px",
+                marginBottom: "10px",
+                color: "white"
+              }}
+            >
+              <strong>{prod.nombre}</strong>
+
+              <div>
+                Categoría: {prod.categoria}
+              </div>
+
+              <div>
+                Precio: ${prod.precio}
+              </div>
+
+              <div
+                style={{
+                  color: obtenerColorStock(prod.stock)
+                }}
+              >
+                Stock: {prod.stock}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      ) : (
+        categorias.map((cat) => (
           <Categoria
+            
+            categoriaAbierta={categoriaAbierta}
+            setCategoriaAbierta={setCategoriaAbierta}
             key={cat.id}
             cat={cat}
 
@@ -275,9 +476,11 @@ function Home({ categorias, setCategorias}) {
 
             eliminarProducto={eliminarProducto}
             obtenerColorStock={obtenerColorStock}
+
+            busquedaProducto={busquedaProducto}
           />
-        ))}
-      </ul>
+        ))
+      )} 
     </div>
   );
 }
