@@ -5,6 +5,7 @@ import {
     Button,
     Typography
 } from "@mui/material";
+import { useState } from "react";
 
 function Categoria({
   cat,
@@ -42,6 +43,7 @@ const productosFiltrados = cat.productos.filter((prod) =>
     busquedaProducto.toLowerCase()
   )
 );
+const [mostrarOpciones, setMostrarOpciones] = useState(false);
 
 console.log(busquedaProducto);
   return (
@@ -74,24 +76,44 @@ console.log(busquedaProducto);
         </>
       ) : (
         <>
-          <Typography
-            variant="h5"
-            onClick={() =>
-              setCategoriaAbierta(
-                categoriaAbierta === cat.id ? null : cat.id
-              )
-            }
-            sx={{
-              cursor: "pointer",
-              fontWeight: "bold",
-              mb: 2,
-              color: "#b3daf0",
-              userSelect: "none"
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "15px"
             }}
           >
-            {categoriaAbierta === cat.id ? "▼" : "▶"} {cat.nombre}
-          </Typography>
-          {categoriaAbierta === cat.id && (
+            <Typography
+              variant="h5"
+              onClick={() =>
+                setCategoriaAbierta(
+                  categoriaAbierta === cat.id ? null : cat.id
+                )
+              }
+              sx={{
+                cursor: "pointer",
+                fontWeight: "bold",
+                color: "#b3daf0",
+                userSelect: "none",
+                margin: 0
+              }}
+            >
+              {categoriaAbierta === cat.id ? "▼" : "▶"} {cat.nombre}
+            </Typography>
+
+            {categoriaAbierta === cat.id && (
+              <Button
+                size="small"
+                onClick={() =>
+                  setMostrarOpciones(!mostrarOpciones)
+                }
+              >
+                ⚙
+              </Button>
+            )}
+          </div>
+          {categoriaAbierta === cat.id && mostrarOpciones && (
             <div
               style={{
                 display: "flex",

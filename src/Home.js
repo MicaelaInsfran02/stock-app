@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import { useNavigate } from "react-router-dom";
 import Producto from "./Producto";
 import Categoria from "./Categoria";
-import DashboardCard from "./DashboardCard";
+import Dashboard from "./Dashboard";
+import BuscadorProductos from "./BuscadorProductos";
+import NuevaCategoria from "./NuevaCategoria";
 import {
   Button,
-  TextField,
   Typography
 } from "@mui/material";
 
@@ -39,10 +40,8 @@ function Home({ categorias, setCategorias}) {
     porcentaje: "",
     stock: ""
   });
-
-    
    
-    //-----------------------------FUNCIONES-----------------------------//  
+  //-----------------------------FUNCIONES-----------------------------//  
 
   //creamos la funcion para agregar categoria 
   const agregarCategoria = () => {
@@ -59,8 +58,16 @@ function Home({ categorias, setCategorias}) {
 
   //creamos la funcion para eliminar categoria
     const eliminarCategoria = (id) => {
-      const nuevasCategorias = categorias.filter(cat => cat.id !== id);
-      setCategorias(nuevasCategorias);
+      const categoria = categorias.find(
+        cat => cat.id === id
+      );
+      const confirmar = window.confirm(
+        `¿Estás seguro de eliminar la categoría "${categoria.nombre}"?`
+      );
+      if (!confirmar) return;
+      setCategorias(
+        categorias.filter(cat => cat.id !== id)
+      );
     };
 
   //creamos la funcion para editar categoria, conservando el nombre actual en el input
@@ -199,6 +206,7 @@ const todosLosProductos = categorias.flatMap(cat =>
     categoria: cat.nombre
   }))
 );
+
 const resultadosBusqueda = todosLosProductos.filter(prod =>
   prod.nombre.toLowerCase().includes(
     busquedaProducto.toLowerCase()
@@ -233,28 +241,21 @@ const resultadosBusqueda = todosLosProductos.filter(prod =>
           marginBottom: "30px"
         }}
       >
-        MIStock
+        Control de stock
       </Typography>
       {/* BOTONES */}
       <div
         style={{
           display: "flex",
           justifyContent: "center",
-          gap: "30px",
+          gap: "10px",
           marginBottom: "20px"
         }}
       >
-        <TextField
-            label="Buscar producto..."
-            variant="outlined"
-            value={busquedaProducto}
-            onChange={(e) => setBusquedaProducto(e.target.value)}
-            sx={{
-              backgroundColor: "white",
-              borderRadius: "10px",
-              flex: 1
-            }}
-          />
+        <BuscadorProductos
+          busquedaProducto={busquedaProducto}
+          setBusquedaProducto={setBusquedaProducto}
+        />
         <Button 
           variant="contained"
           onClick={() => navigate("/ventas")}
@@ -286,62 +287,12 @@ const resultadosBusqueda = todosLosProductos.filter(prod =>
       </div>
 
       {mostrarDashboard && (
-        <>
-          {/* DASHBOARD */}
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              marginBottom: "15px",
-              flexWrap: "wrap"
-            }}
-          >
-            <DashboardCard
-              titulo="CATEGORÍAS"
-              valor={categorias.length}
-            />
-
-            <DashboardCard
-              titulo="PRODUCTOS"
-              valor={totalProductos}
-            />
-
-            <DashboardCard
-              titulo="STOCK"
-              valor={stockTotal}
-            />
-          </div>
-
-          {/* STOCK BAJO */}
-          {productosStockBajo.length > 0 && (
-            <div
-              style={{
-                fontFamily: "Arial, sans-serif",
-                backgroundColor: "#f37575",
-                border: "1px solid #ff5252",
-                padding: "10px",
-                borderRadius: "10px",
-                marginBottom: "20px",
-                width: "340px"
-              }}
-            >
-              <strong>⚠ STOCK BAJO</strong>
-
-              <ul
-                style={{
-                  marginTop: "8px",
-                  marginBottom: 0
-                }}
-              >
-                {productosStockBajo.map((prod) => (
-                  <li key={prod.id}>
-                    {prod.nombre} - Stock: {prod.stock}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </>
+        <Dashboard
+          categorias={categorias}
+          totalProductos={totalProductos}
+          stockTotal={stockTotal}
+          productosStockBajo={productosStockBajo}
+        />
       )}
       <div
         style={{
@@ -353,50 +304,22 @@ const resultadosBusqueda = todosLosProductos.filter(prod =>
       </div>
 
       {mostrarNuevaCategoria && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "10px",
-            marginBottom: "30px"
-            }}
-        >
-          <TextField
-            label="Nombre de la categoría"
-            value={nombreCategoria}
-            onChange={(e) =>
-              setNombreCategoria(e.target.value)
-            }
-            size="small"
-            sx={{
-              backgroundColor: "white",
-              borderRadius: "10px",
-              marginRight: "10px"
-            }}
-          />
-
-          <Button
-            variant="contained"
-            onClick={() => {
-              agregarCategoria();
-              setMostrarNuevaCategoria(false);
-            }}
-          >
-            Guardar
-          </Button>
-        </div>
+        <NuevaCategoria
+          nombreCategoria={nombreCategoria}
+          setNombreCategoria={setNombreCategoria}
+          agregarCategoria={agregarCategoria}
+        />
       )}
+
     {busquedaProducto.trim() !== "" ? (
-      <div>
+      <div style={{ fontFamily: "Arial, sans-serif"}}>
         <h3>Resultados</h3>
 
         {resultadosBusqueda.length === 0 ? (
           <p
             style={{
-              color: "#bdbdbd",
-              textAlign: "center",
-              marginTop: "20px"
+              color: "#000000",
+              textAlign: "center"
             }}
           >
             No se encontraron productos
@@ -410,6 +333,7 @@ const resultadosBusqueda = todosLosProductos.filter(prod =>
                 padding: "12px",
                 borderRadius: "10px",
                 marginBottom: "10px",
+                marginTop: "20px",
                 color: "white"
               }}
             >
