@@ -18,10 +18,10 @@ function Producto({
     <Card
       sx={{
         mt: 2,
-        backgroundColor: "#252525",
+        backgroundColor: "#204263",
         color: "white",
         borderRadius: "12px",
-        boxShadow: "0 4px 10px rgba(44, 44, 44, 0.3)"
+        boxShadow: "0 4px 10px rgba(87, 87, 87, 0.3)"
       }}
     >
       <CardContent>
@@ -54,7 +54,7 @@ function Producto({
         >
           <Button
             size="small"
-            variant="outlined"
+            variant="contained"
             onClick={() =>
               eliminarProducto(cat.id, prod.id)
             }

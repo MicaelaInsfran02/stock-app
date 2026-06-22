@@ -1,0 +1,12 @@
+.categoria-header {
+    display: "flex";
+    justify-content: "space-between";
+    align-items: "center";
+    margin-bottom: "15px"
+}
+.categoria-opciones{
+    display: "flex";
+    gap: "10px";
+    margin-bottom: "15px";
+    flex-wrap: "wrap"
+}
